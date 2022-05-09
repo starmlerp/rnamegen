@@ -1,6 +1,6 @@
-CPPFLAGS=
+CPPFLAGS=-g -Og
 
-CC=g++
+CC=gcc
 
 TARGET=rnamegen
 CTYPE=c
