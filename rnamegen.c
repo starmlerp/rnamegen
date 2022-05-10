@@ -111,29 +111,29 @@ char *assemble(struct letterdata *letters){
 	struct word *f, *c = (struct word*)malloc(sizeof(struct word));
 	c->next = NULL;
 	f = c;
-	long r = random(0, sum);
+	long r = random(1, sum);
 	for(size_t i = 0; i < charwidth && r > 0; i++){
 		r -= letters[i].weight;
-		if(r <= 0) c->letter = i;
+		c->letter = i;
 	}
 	s++;
 	while(c->letter){
-		char t = c->letter;
+		int t = c->letter;
+//		printf("%d\n", c->letter);
 		c->next = (struct word*)malloc(sizeof(struct word));
 		c = c->next;
 		c->next = NULL;
 		long lsum = 0;
 		for(size_t i = 0; i < charwidth; i++)lsum+=letters[t].succeede[i];
-		long r = random(0, lsum);
+		long r = random(1, lsum);
 		for(size_t i = 0; i < charwidth && r > 0; i++){
-			r -= letters[t].succeede[i];
 			c->letter = i;
+			r -= letters[t].succeede[i];
 		}
 		s++;
 	}
 	char *out = (char*)malloc(s * sizeof(char));
 	c = f;
-	printf("%d\n", s);
 	for(size_t i = 0; i < s; i++){
 		out[i] = c->letter;
 		struct word *h = c;
@@ -145,14 +145,16 @@ char *assemble(struct letterdata *letters){
 
 int main(int argc, char *argv[]){
 	char **names = NULL;
+	int count = 8;
+	if(argc == 2)count = atoi(argv[1]);
 	srand(time(NULL));
 	int n = load(fopen("names.csv", "r"), &names);
 	struct letterdata *data = analyze(names, n);
-	printf("%s\n", assemble(data));
 	/*
 	for(int i = 0; i < 256; i++){
 		if(data[i].weight)printf("%c: %d\n", i, data[i].weight);
 		for(int j = 0; j < 256; j++)if(data[i].succeede[j])printf("\t%c: %d:%d\n", j,data[i].preceede[j], data[i].succeede[j]);
 	}
 	*/
+	for(int i = 0; i < count; i++)printf("%s\n", assemble(data));
 }
