@@ -1,4 +1,4 @@
-CPPFLAGS=-g -Og
+CPPFLAGS= -g
 
 CC=gcc
 

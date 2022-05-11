@@ -103,6 +103,7 @@ struct letterdata *analyze(char **sample, size_t size){
 
 char *assemble(struct letterdata *letters){
 	//assemble a random word based on the letter data
+	//TODO: make the assembler better utilize the data it has in function construction
 	long sum = 0;
 	size_t charwidth = 1, s = 0;
 	for(size_t i = 0; i < 8 * sizeof(char); i++)charwidth *= 2;
@@ -142,7 +143,7 @@ char *assemble(struct letterdata *letters){
 	}
 	return out;
 }
-
+//TODO: implement functions to load and save letter data in a file, as well as reimplement the analyzer function in order to make it possible for it to take the existing letter data, and append to it
 int main(int argc, char *argv[]){
 	char **names = NULL;
 	int count = 8;
@@ -150,11 +151,11 @@ int main(int argc, char *argv[]){
 	srand(time(NULL));
 	int n = load(fopen("names.csv", "r"), &names);
 	struct letterdata *data = analyze(names, n);
-	/*
+/*
 	for(int i = 0; i < 256; i++){
 		if(data[i].weight)printf("%c: %d\n", i, data[i].weight);
 		for(int j = 0; j < 256; j++)if(data[i].succeede[j])printf("\t%c: %d:%d\n", j,data[i].preceede[j], data[i].succeede[j]);
 	}
-	*/
+*/
 	for(int i = 0; i < count; i++)printf("%s\n", assemble(data));
 }
