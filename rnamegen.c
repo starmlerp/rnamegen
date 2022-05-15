@@ -104,7 +104,7 @@ struct letterdata *analyze(char **sample, size_t size){
 			else out[sample[i][c]].preceede[sample[i][c-1]]++;
 		}while(sample[i][c] != '\0');
 	}
-	out['\0'].weight/=4;
+	out['\0'].weight/=8;
 	return out;
 }
 
@@ -158,12 +158,13 @@ int main(int argc, char *argv[]){
 	int count = 8;
 	if(argc == 2)count = atoi(argv[1]);
 	srand(time(NULL));
-	int n = load(fopen("names.csv", "r"), &names);
+	int n = load(fopen("names-2.csv", "r"), &names);
 	struct letterdata *data = analyze(names, n);
 /*
 	for(int i = 0; i < 256; i++){
 		if(data[i].weight)printf("%c(%d): %d\n", i, i, data[i].weight);
-		for(int j = 0; j < 256; j++)if(data[i].succeede[j] || data[i].preceede[j])printf("\t%c(%d): %d:%d\n", j, j, data[i].preceede[j], data[i].succeede[j]); }
+		for(int j = 0; j < 256; j++)if(data[i].succeede[j] || data[i].preceede[j])printf("\t%c(%d): %d:%d\n", j, j, data[i].preceede[j], data[i].succeede[j]); 
+	}
 */
 //	printf("%d\n", n);
 	for(int i = 0; i < count; i++)printf("%s\n", assemble(data));
