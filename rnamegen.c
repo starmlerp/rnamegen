@@ -173,7 +173,7 @@ int main(int argc, char *argv[]){
 	int count = 8;
 	if(argc == 2)count = atoi(argv[1]);
 	srand(time(NULL));
-	int n = load(fopen("names-2.csv", "r"), &names);
+	int n = load(fopen("data/names.csv", "r"), &names);
 	struct stats data;
 	analyze(names, n, &data);
 //	for(int i = 0; i < n; i++)printf("%s\n", names[i]);
