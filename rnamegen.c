@@ -7,8 +7,8 @@
 
 #define random(x, y) (rand() % (y - x + 1) + x)
 
-#define FSELECTOR letters.ldata[i].weight * letters.ldata[i].preceede['\0']
-#define LSELECTOR letters.ldata[t].succeede[i] * letters.ldata[i].weight * letters.ldata[i].preceede[t] * (i?1:nsize/namelen)
+#define FSELECTOR sqrt(letters.ldata[i].weight * letters.ldata[i].preceede['\0'])
+#define LSELECTOR sqrt(letters.ldata[t].succeede[i] * letters.ldata[i].weight * letters.ldata[i].preceede[t] * (i?1:nsize/namelen))
 
 struct letterdata{
 	int weight, *preceede;
