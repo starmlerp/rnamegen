@@ -1,5 +1,4 @@
-CPPFLAGS= -g
-
+CPPFLAGS= -static-libgcc -lm -std=c11 -g #-Wall -Wextra 
 CC=gcc
 
 TARGET=rnamegen

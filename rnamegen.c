@@ -8,7 +8,7 @@
 #define random(x, y) (rand() % (y - x + 1) + x)
 
 #define FSELECTOR sqrt(letters.ldata[i].weight * letters.ldata[i].preceede['\0'])
-#define LSELECTOR sqrt(letters.ldata[t].succeede[i] * letters.ldata[i].weight * letters.ldata[i].preceede[t] * (i?1:nsize/namelen))
+#define LSELECTOR sqrt(letters.ldata[t].succeede[i] * letters.ldata[i].weight * letters.ldata[t].preceede[i] * (i?1:nsize/namelen))
 
 struct letterdata{
 	int weight, *preceede;
@@ -91,8 +91,7 @@ int load(FILE* f, char ***out){
 
 void analyze(char **sample, size_t size, struct stats *outdata){
 	//analyze letters in the names by which letter preceeds and succeedes it
-	size_t charwidth = 1;
-	for(size_t i = 0; i < 8 * sizeof(char); i++)charwidth *= 2;
+	const size_t charwidth = ((unsigned char)-1)+1;
 	//TODO: check if outdata->ldata is already allocated, if not only then do this
 	outdata->ltotal = 0;
 	outdata->cnames = size;
@@ -125,9 +124,8 @@ char *assemble(struct stats letters){
 	//assemble a random word based on the letter data
 	//TODO: make the assembler better utilize the data it has in function construction
 	long sum = 0;
-	size_t charwidth = 1, s = 0;
+	size_t charwidth = ((unsigned char)-1)+1, s = 0;
 	const double namelen = (double)letters.ltotal / letters.cnames;
-	for(size_t i = 0; i < 8 * sizeof(char); i++)charwidth *= 2;
 
 	for(size_t i = 0; i < charwidth; i++)sum+=(FSELECTOR);
 	struct word *f, *c = (struct word*)malloc(sizeof(struct word));
