@@ -1,16 +1,35 @@
-CPPFLAGS= -static-libgcc -lm -std=c11 -g -Wall -Wextra 
+CPPFLAGS= -static-libgcc -g -lm # -Wall -Wextra 
 CC=gcc
+CXX=g++
+TARGET=main
+SRC=./src
+LIB=./lib
+HDR=./include
 
-TARGET=rnamegen
-CTYPE=c
+LIBS=$(wildcard $(SRC)/*.cpp)
+HDRS=$(wildcard $(HDR)/*)
+OBJS=$(LIBS:$(SRC)/%.cpp=$(LIB)/%.o)
 
-$(TARGET): $(TARGET).$(CTYPE)
-	$(CC) $(CPPFLAGS) $^ -o $@
+all: $(TARGET) tags
 
-tags: $(TARGET).$(CTYPE)
+$(TARGET).o: $(TARGET).cpp $(OBJS)
+	$(CXX) -c -I $(HDR) $(CPPFLAGS) $^ -o $@
+
+$(TARGET): $(TARGET).o $(OBJS)
+	$(CXX) $^ -o $@
+
+$(LIB):
+	mkdir $(LIB)
+
+$(OBJS): $(LIBS) $(LIB)
+	$(CXX) -c -I $(HDR) $(CPPFLAGS) $(LIBS) -o $@
+
+tags: %.cpp $(HDR)/%.h
 	ctags $^
 
-.PHONY=run
+.PHONY=run clear
 
 run: $(TARGET)
 	./$(TARGET)
+clear:
+	rm $(TARGET) $(TARGET).o $(OBJS) tags
