@@ -1,30 +1,36 @@
-CPPFLAGS= -static-libgcc -g -lm # -Wall -Wextra 
+CPPFLAGS=-g3 -lm# -fsanitize=address -Wall
 CC=gcc
 CXX=g++
 TARGET=main
 SRC=./src
 LIB=./lib
 HDR=./include
+BLD=./build
 
-LIBS=$(wildcard $(SRC)/*.cpp)
+SRCS=$(wildcard $(SRC)/*.cpp)
 HDRS=$(wildcard $(HDR)/*)
-OBJS=$(LIBS:$(SRC)/%.cpp=$(LIB)/%.o)
+OBJS=$(SRCS:$(SRC)/%.cpp=$(BLD)/%.o)
+LIBS=$(SRCS:$(SRC)/%.cpp=$(LIB)/lib%.a)
 
 all: $(TARGET) tags
 
-$(TARGET).o: $(TARGET).cpp $(OBJS)
+$(TARGET).o: $(TARGET).cpp
+	$(CXX) $(CPPFLAGS) -c -I $(HDR) $(TARGET).cpp -o $@
+
+
+$(TARGET): $(TARGET).o $(LIBS)
+	$(CXX) $^ -L$(LIB) $(OBJS:$(BLD)/%.o=-l%)  $(CPPFLAGS) -o $@
+
+$(LIB) $(BLD):
+	mkdir $@
+
+$(OBJS): $(BLD)/%.o: $(SRC)/%.cpp
 	$(CXX) -c -I $(HDR) $(CPPFLAGS) $^ -o $@
 
-$(TARGET): $(TARGET).o $(OBJS)
-	$(CXX) $^ -o $@
+$(LIBS): $(LIB)/lib%.a: $(BLD)/%.o
+	ar rcs $@ $^
 
-$(LIB):
-	mkdir $(LIB)
-
-$(OBJS): $(LIBS) $(LIB)
-	$(CXX) -c -I $(HDR) $(CPPFLAGS) $(LIBS) -o $@
-
-tags: %.cpp $(HDR)/%.h
+tags: $(TARGET).cpp $(HDRS) $(SRCS)
 	ctags $^
 
 .PHONY=run clear
@@ -32,4 +38,4 @@ tags: %.cpp $(HDR)/%.h
 run: $(TARGET)
 	./$(TARGET)
 clear:
-	rm $(TARGET) $(TARGET).o $(OBJS) tags
+	rm $(TARGET) $(TARGET).o $(OBJS) $(LIBS)
