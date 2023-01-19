@@ -10,21 +10,19 @@ struct letterdata{
 };
 
 class stats{
+	struct word{
+		char letter;
+		struct word *next, *prev;
+	};
+	public:
 	struct letterdata *ldata;
 	size_t ltotal;
 	size_t cnames;
-
-	public:
 	void analyze(char **sample, size_t size);
 	double evaluate(char *target);
 	char *assemble();
+	 stats();
+	~stats();
 };
-
-struct word{
-	char letter;
-	struct word *next, *prev;
-};
-
-int load(FILE* f, char ***out);
 
 #endif

@@ -19,13 +19,13 @@ $(TARGET).o: $(TARGET).cpp
 
 
 $(TARGET): $(TARGET).o $(LIBS)
-	$(CXX) $^ -L$(LIB) $(OBJS:$(BLD)/%.o=-l%)  $(CPPFLAGS) -o $@
+	$(CXX) $(TARGET).o -L$(LIB) $(OBJS:$(BLD)/%.o=-l%) $(CPPFLAGS) -o $@
 
 $(LIB) $(BLD):
 	mkdir $@
 
-$(OBJS): $(BLD)/%.o: $(SRC)/%.cpp
-	$(CXX) -c -I $(HDR) $(CPPFLAGS) $^ -o $@
+$(OBJS): $(BLD)/%.o: $(SRC)/%.cpp $(HDR)/%.h
+	$(CXX) -c -I $(HDR) $(CPPFLAGS) $(word 1, $^) -o $@
 
 $(LIBS): $(LIB)/lib%.a: $(BLD)/%.o
 	ar rcs $@ $^

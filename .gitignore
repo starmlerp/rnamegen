@@ -1,4 +1,8 @@
-rnamegen
+*
+!*.*
+*.o
 tags
 out.log
 out.txt
+lib/
+build/
