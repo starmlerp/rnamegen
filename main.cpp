@@ -57,7 +57,6 @@ int main(int argc, char *argv[]){
 	     *outdata = NULL;
 	size_t count = 1;
 	size_t generations = 0;
-	bool silent = false;
 	
 	if(argc > 1)
 		for(int i = 1; i < argc; i++){
@@ -99,9 +98,6 @@ int main(int argc, char *argv[]){
 							return 1;
 						}
 						generations = atoi(argv[++i]);
-					break;
-					case 's':
-						silent = true;
 					break;
 					default:
 						goto prterr;
@@ -160,15 +156,15 @@ prterr:
 	if(outdata){
 		FILE *outfile = fopen(outdata, "w");
 		for(size_t i = 0; i < CHARW; i++){
-			fprintf(outfile, "%ld, ", data.ldata[i].weight);
+			fprintf(outfile, "%ld,", data.ldata[i].weight);
 			for(size_t j = 0; j < CHARW; j++)
-				fprintf(outfile, "%ld, ", data.ldata[i].preceede[j]);
+				fprintf(outfile, "%ld,", data.ldata[i].preceede[j]);
 			for(size_t j = 0; j < CHARW; j++)
-				fprintf(outfile, "%ld, ", data.ldata[i].succeede[j]);
+				fprintf(outfile, "%ld,", data.ldata[i].succeede[j]);
 		}
-		fprintf(outfile, "%ld, %ld", data.ltotal, data.cnames);
+		fprintf(outfile, "%ld,%ld", data.ltotal, data.cnames);
 	}
-	if(!silent)
+	if(outdata && count > 1 || !outdata)
 		for(size_t i = 0; i < count; ++i){
 			printf("%s\n", data.assemble());
 		}
