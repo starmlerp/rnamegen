@@ -46,24 +46,24 @@ rnamegen [-f <file>] [-o <file>] [-i <file>] [-n <num>]
 
 ### options
 
-    -f <file>
+`-f <file>`
 
-      Read file with training values. Program expects this to be a CSV file containing names/words used for analysis. It is reccomended to have at least 1000 unique datapoints, as anything less can produce poor results.
+Read file with training values. Program expects this to be a CSV file containing names/words used for analysis. It is reccomended to have at least 1000 unique datapoints, as anything less can produce poor results.
 
-      Default value is "data/names.csv".
+Default value is "data/names.csv".
 
-    -o <file>
+`-o <file>`
       
-      Output generated data into a file. Although the outputted file is in the CSV form, it is not very human readable. The file describes internal per-letter statistics data used to generate names, and as such requires particular number of entries.
+Output generated data into a file. Although the outputted file is in the CSV form, it is not very human readable. The file describes internal per-letter statistics data used to generate names, and as such requires particular number of entries.
 
-      The program will return an error if this file is mishandled, so it is not reccomended to manually edit it
+The program will return an error if this file is mishandled, so it is not reccomended to manually edit it
 
-    -i <file>
+`-i <file>`
       
-      Read statistics data from a file. Expects a file generated with an `-i` option as input.
+Read statistics data from a file. Expects a file generated with an `-i` option as input.
 
-      if the `-f` option is also provided, the statistics from this file will be appended to the ones generated using the other.
+if the `-f` option is also provided, the statistics from this file will be appended to the ones generated using the other.
 
-    -n <num>
+`-n <num>`
 
-      Number of names to generate. Names will be separated by newline.
+Number of names to generate. Names will be separated by newline.
