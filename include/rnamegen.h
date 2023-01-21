@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <ctime>
 #include <cmath>
+#include <climits>
 
 struct letterdata{
 	size_t weight, *preceede, *succeede;
