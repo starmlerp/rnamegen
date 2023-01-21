@@ -35,10 +35,7 @@ stats::~stats(){
 
 void stats::analyze(char **sample, size_t size){
 	//analyze letters in the names by which letter preceeds and succeedes it
-//	const size_t CHARW = ((unsigned char)-1)+1;
-	//TODO: check if this->ldata is already allocated, if not only then do this
-	this->ltotal = 0;
-	this->cnames = size;
+	this->cnames += size;
 	for(size_t i = 0; i < size; i++){
 		int c = -1;
 		do{
@@ -109,13 +106,18 @@ char *stats::assemble(){
 double stats::evaluate(char *target){
 	const double namelen = (double)this->ltotal / this->cnames;
 	double out = 0;
+	size_t uniques = 0;
 	size_t i;
 	for(i = 0; target[i]; i++){
 		size_t prev, next = (size_t)target[i+1], curr=(size_t)target[i];
 		if(i == 0)prev = 0;
 		else prev = (size_t)target[i-1];
+		for(size_t j = i; j <= 0; j++)
+			if(target[j] == target[i]) goto not_unique;
+		uniques++;
+not_unique:
 		out += this->ldata[prev].succeede[curr] * this->ldata[next].preceede[curr] * this->ldata[curr].weight;
 	}
-	out /= namelen / abs(i - namelen);
+	out = out / (namelen - i) * uniques;
 	return out;
 }
