@@ -162,8 +162,8 @@ int main(int argc, char *argv[]){
 							data.analyze(names, n);
 						}
 						for(size_t i = 0; i < generations; i++){
-							char *generation[gensize];
-							double grade[gensize];
+							char **generation = new char*[gensize];
+							double *grade = new double[gensize];
 					//		printf("generating generation %d\n", i+1);
 							for(size_t j = 0; j < gensize; j++){
 								generation[j] = evodata->assemble();
@@ -184,9 +184,12 @@ int main(int argc, char *argv[]){
 								else
 									delete [] generation[j];
 							}
-							if(!evodata) delete evodata;
+							if(evodata != &data) delete evodata;
 							evodata = new stats;
 							evodata->analyze(generation, filter);
+							for(size_t j = 0; j < filter; j++) delete [] generation[j];
+							delete [] generation;
+							delete [] grade;
 						}
 					break;
 					default:
