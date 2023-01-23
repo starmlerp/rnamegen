@@ -12,7 +12,7 @@ HDRS=$(wildcard $(HDR)/*)
 OBJS=$(SRCS:$(SRC)/%.cpp=$(BLD)/%.o)
 LIBS=$(SRCS:$(SRC)/%.cpp=$(LIB)/lib%.a)
 
-all: $(TARGET) tags
+all: $(TARGET) tags $(LIB) $(BLD)
 
 $(TARGET).o: $(TARGET).cpp
 	$(CXX) $(CPPFLAGS) -c -I $(HDR) $(TARGET).cpp -o $@
