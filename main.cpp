@@ -3,11 +3,12 @@
 #include <ctime>
 #include <cmath>
 #include <climits>
+#include <thread>
 
 #include "rnamegen.h"
 
 #define SEPARATOR ','
-#define NAMEDEF "data/names.csv"
+#define NAMEDEF "/etc/rnamegen/names.csv"
 
 size_t loadcsv(FILE* f, char ***values){
 	rewind(f);
@@ -22,10 +23,8 @@ size_t loadcsv(FILE* f, char ***values){
 	fseek(f, 0, SEEK_SET);
 	fsize -= ftell(f);
 	char *buffer = new char[fsize];
-	for(size_t i = 0; i < fsize; i++){
-		buffer[i]=fgetc(f);
-		if(buffer[i] == ',')n++; // increment N if we come by a comma
-	}
+	for(size_t i = 0; i < fsize; i++)
+		if((buffer[i] = fgetc(f)) == ',')n++; // increment N if we come by a comma
 	*values = new char*[n];
 	size_t ival = 0;
 	for(size_t i = 0; i < fsize; i++){
@@ -48,14 +47,24 @@ size_t loadcsv(FILE* f, char ***values){
 	return n;
 }
 
+void assembler_thread(stats *data, stats *curdata, char **names, size_t count, double *grade){ // i think im starting to understand peas frustration with pointers
+											       // this is just obnoxious
+	for(size_t i = 0; i < count; i++){
+		names[i] = curdata->assemble();
+		grade[i] = data->evaluate(names[i]);
+	}
+	return;
+}
+
 //TODO: implement functions to load and save letter data in a file, as well as reimplement the analyzer function in order to make it possible for it to take the existing letter data, and append to it
 int main(int argc, char *argv[]){
-	stats data, *evodata = &data;
+	stats data, *curdata = &data;
 	//default values, modified by the user
 	size_t count = 1;
 	size_t generations = 0;
 	size_t gensize = 10000;
 	size_t filter = 1000;
+	size_t threads = 1;
 	bool append_to_base = false;
 	
 	if(argc > 1)
@@ -64,16 +73,31 @@ int main(int argc, char *argv[]){
 			for(l = 0; argv[i][l]; ++l);
 			if(l == 2 && argv[i][0] == '-'){
 				switch(argv[i][1]){
+					case 'j':
+						if(argc == i - 1)
+							if(argv[i+1][0] == '-'){
+								threads = std::thread::hardware_concurrency();
+								i++;
+								break;
+							}
+							else;
+						else threads = atoi(argv[++i]);
+					break;
 					case 'f':{ // which csv file to use for sampling names
 						if(argc == i - 1){
 							printf("%s: option %s expects an argument\n", argv[0],argv[i]);
 							return 1;
 						}
-						FILE *f = fopen(argv[++i], "r");
+						FILE *f = fopen(argv[i], "r");
+						if(!f){
+							fprintf(stderr, "%s: error opening file %s: no such file\n", argv[0], argv[i]);
+							return 1;
+						}
+						i++;
 						char **names;
 						size_t n = loadcsv(f, &names);
 						fclose(f);
-						evodata->analyze(names, n);
+						curdata->analyze(names, n);
 						delete [] *names;
 					}
 					break;
@@ -89,7 +113,12 @@ int main(int argc, char *argv[]){
 							printf("%s: option %s expects an argument\n", argv[0],argv[i]);
 							return 1;
 						}
-						FILE *f = fopen(argv[++i], "r");
+						FILE *f = fopen(argv[i], "r");
+						if(!f){
+							fprintf(stderr, "%s: error opening file %s: no such file\n", argv[0], argv[i]);
+							return 1;
+						}
+						i++;
 						char **csvalues;
 						size_t n = loadcsv(f, &csvalues);
 						fclose(f);
@@ -106,14 +135,14 @@ int main(int argc, char *argv[]){
 						}
 						size_t di = 0;
 						for(size_t i = 0; i < UCHAR_MAX; i++){
-							evodata->ldata[i].weight += atoi(csvalues[di++]);
+							curdata->ldata[i].weight += atoi(csvalues[di++]);
 								for(size_t j = 0; j < UCHAR_MAX; j++)
-									evodata->ldata[i].preceede[j] += atoi(csvalues[di++]);
+									curdata->ldata[i].preceede[j] += atoi(csvalues[di++]);
 								for(size_t j = 0; j < UCHAR_MAX; j++)
-									evodata->ldata[i].succeede[j] += atoi(csvalues[di++]);
+									curdata->ldata[i].succeede[j] += atoi(csvalues[di++]);
 						}
-						evodata->ltotal += atoi(csvalues[di++]);
-						evodata->cnames += atoi(csvalues[di++]);
+						curdata->ltotal += atoi(csvalues[di++]);
+						curdata->cnames += atoi(csvalues[di++]);
 						delete [] *csvalues;
 					}
 					break;
@@ -125,13 +154,13 @@ int main(int argc, char *argv[]){
 						}
 						FILE *outfile = fopen(argv[++i], "w");
 						for(size_t i = 0; i < UCHAR_MAX; i++){
-							fprintf(outfile, "%ld,", evodata->ldata[i].weight);
+							fprintf(outfile, "%ld,", curdata->ldata[i].weight);
 							for(size_t j = 0; j < UCHAR_MAX; j++)
-								fprintf(outfile, "%ld,", evodata->ldata[i].preceede[j]);
+								fprintf(outfile, "%ld,", curdata->ldata[i].preceede[j]);
 							for(size_t j = 0; j < UCHAR_MAX; j++)
-								fprintf(outfile, "%ld,", evodata->ldata[i].succeede[j]);
+								fprintf(outfile, "%ld,", curdata->ldata[i].succeede[j]);
 						}
-						fprintf(outfile, "%ld,%ld", evodata->ltotal, data.cnames);
+						fprintf(outfile, "%ld,%ld", curdata->ltotal, data.cnames);
 					}
 					break;
 					case 'b': // generation batch size 
@@ -156,27 +185,34 @@ int main(int argc, char *argv[]){
 						generations = atoi(argv[++i]);
 						if(!data.cnames){
 							FILE* f = fopen(NAMEDEF, "r");
+							if(!f){
+								fprintf(stderr, "%s: error opening file NAMEDEF: no such file\n", argv[0]);
+								return 1;
+							}
 							char **names;
 							size_t n = loadcsv(f, &names);
 							fclose(f);
 							data.analyze(names, n);
 						}
 						for(size_t i = 0; i < generations; i++){
+							std::thread thread[threads];
 							char **generation = new char*[gensize];
 							double *grade = new double[gensize];
-					//		printf("generating generation %d\n", i+1);
-							for(size_t j = 0; j < gensize; j++){
-								generation[j] = evodata->assemble();
-								grade[j] = data.evaluate(generation[j]);
-							}
-					//		printf("filtering generation %d\n", i+1);
+							size_t k;
+//							printf("generating names\n");
+							for(size_t j = 0; j < threads; j++)
+								#define T_SEG gensize / threads
+								thread[j]=std::thread(assembler_thread, &data, curdata, &generation[j * T_SEG], T_SEG, &grade[j * T_SEG]);
+							for(size_t j = 0; j < threads; j++)
+								thread[j].join();
 							size_t min = 0;
+//							printf("selecting names\n");
 							for(size_t k= 0; k < filter; k++)
 								if(grade[k] < grade[min])min = k;
 							for(size_t j = filter; j < gensize; j++){
 								if(grade[j] > grade[min]){
-									grade[min] = grade[j];
 									delete [] generation[min];
+									grade[min] = grade[j];
 									generation[min] = generation[j];
 									for(size_t k= 0; k < filter; k++)
 										if(grade[k] < grade[min])min = k;
@@ -184,9 +220,9 @@ int main(int argc, char *argv[]){
 								else
 									delete [] generation[j];
 							}
-							if(evodata != &data) delete evodata;
-							evodata = new stats;
-							evodata->analyze(generation, filter);
+							if(curdata != &data) delete curdata;
+							curdata = new stats;
+							curdata->analyze(generation, filter);
 							for(size_t j = 0; j < filter; j++) delete [] generation[j];
 							delete [] generation;
 							delete [] grade;
@@ -208,14 +244,18 @@ prterr:
 	
 	if(!data.cnames){
 		FILE* f = fopen(NAMEDEF, "r");
+		if(!f){
+			fprintf(stderr, "%s: error opening file NAMEDEF: no such file\n", argv[0]);
+			return 1;
+		}
 		char **names;
 		size_t n = loadcsv(f, &names);
 		fclose(f);
 		data.analyze(names, n);
 	}
 	for(size_t i = 0; i < count; ++i)
-		printf("%s\n", evodata->assemble());
-	if(generations) delete evodata;
+		printf("%s\n", curdata->assemble());
+	if(generations) delete curdata;
 	if(!count)
 	return 0;
 }
