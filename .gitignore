@@ -2,7 +2,7 @@
 !*.*
 *.o
 tags
-out.log
+*.log
 out.txt
 lib/
 build/

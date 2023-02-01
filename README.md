@@ -16,24 +16,24 @@ works on other platforms, there is no guide for it.
 git clone https://github.com/starmlerp/rnamegen
 ```
 
-2. move to the project directory and build the project using `make`
+2. move to the project directory and install the project using `make`
 
 ```bash
 cd rnamegen/
-make
+sudo make install 
 ```
 
-3. run the project using the produced `main` file
+3. run the project using the produced executable
 
 ```bash
-chmod +x main
-./main
+rnamegen
 ```
+## uninstallation
 
-4. (optional) you can rename and move the executable to your binaries folder
+project also provides an uninstall `make` script, which can be used to remove the executable and config file from the system
 
 ```bash
-mv main /usr/bin/rnamegen
+sudo make uninstall
 ```
 
 ## description
@@ -55,7 +55,7 @@ names from the file will be analyzed and the results will be appended to an inte
 
 It is reccomended to have at least 1000 unique datapoints, as anything less can produce poor results.
 
-Default value is "data/names.csv".
+Default value is "/etc/rnamegen/names.csv".
 
 `-o <file>`
       
