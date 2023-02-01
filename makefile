@@ -52,7 +52,6 @@ clear:
 	rm -f $(TARGET) $(TARGET).o $(OBJS) $(LIBS)
 
 install: $(TARGET) $(LIB) $(BLD) $(INSTALLDIR)/$(CONFIG)
-	chmod +x $(TARGET)
 	cp $(TARGET) $(INSTALL)
 
 uninstall:

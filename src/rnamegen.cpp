@@ -118,6 +118,6 @@ double stats::evaluate(char *target){
 not_unique:
 		out += this->ldata[prev].succeede[curr] * this->ldata[next].preceede[curr] * this->ldata[curr].weight;
 	}
-	out = out / (namelen - i) * uniques;
+	out = abs(out / (i - namelen)) * uniques;
 	return out;
 }

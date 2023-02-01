@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
 					break;
 					case 'f':{ // which csv file to use for sampling names
 						if(argc == i - 1){
-							printf("%s: option %s expects an argument\n", argv[0],argv[i]);
+							fprintf(stderr, "%s: option %s expects an argument\n", argv[0],argv[i]);
 							return 1;
 						}
 						FILE *f = fopen(argv[i], "r");
@@ -103,14 +103,14 @@ int main(int argc, char *argv[]){
 					break;
 					case 'n': // number of names to produce 
 						if(argc == i - 1){
-							printf("%s: option %s expects an argument\n", argv[0],argv[i]);
+							fprintf(stderr, "%s: option %s expects an argument\n", argv[0],argv[i]);
 							return 1;
 						}
 						count = atoi(argv[++i]);
 					break;
 					case 'i':{ // input file to use
 						if(argc == i - 1){
-							printf("%s: option %s expects an argument\n", argv[0],argv[i]);
+							fprintf(stderr, "%s: option %s expects an argument\n", argv[0],argv[i]);
 							return 1;
 						}
 						FILE *f = fopen(argv[i], "r");
@@ -165,21 +165,25 @@ int main(int argc, char *argv[]){
 					break;
 					case 'b': // generation batch size 
 						if(argc == i - 1){
-							printf("%s: option %s expects an argument\n", argv[0],argv[i]);
+							fprintf(stderr, "%s: option %s expects an argument\n", argv[0],argv[i]);
 							return 1;
 						}
 						gensize = atoi(argv[++i]);
 					break;
 					case 's': // number of names to select for next gen
 						if(argc == i - 1){
-							printf("%s: option %s expects an argument\n", argv[0],argv[i]);
+							fprintf(stderr, "%s: option %s expects an argument\n", argv[0],argv[i]);
 							return 1;
 						}
 						filter = atoi(argv[++i]);
 					break;
 					case 'g': // number of evaluative generations to produce
 						if(argc == i - 1){
-							printf("%s: option %s expects an argument\n", argv[0], argv[i]);
+							fprintf(stderr, "%s: option %s expects an argument\n", argv[0], argv[i]);
+							return 1;
+						}
+						if(gensize < filter){
+							fprintf(stderr, "%s: batch size is smaller than select size!\n", argv[0]);
 							return 1;
 						}
 						generations = atoi(argv[++i]);
