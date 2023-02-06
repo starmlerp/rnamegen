@@ -56,6 +56,25 @@ void assembler_thread(stats *data, stats *curdata, char **names, size_t count, d
 	return;
 }
 
+void selector_thread(char **names, double *grade, size_t gensize, size_t filter){
+	size_t min = 0;
+//	printf("selecting names\n");
+	for(size_t k= 0; k < filter; k++)
+		if(grade[k] < grade[min])min = k;
+	for(size_t j = filter; j < gensize; j++){
+		if(grade[j] > grade[min]){
+			delete [] names[min];
+			grade[min] = grade[j];
+			names[min] = names[j];
+			for(size_t k= 0; k < filter; k++)
+				if(grade[k] < grade[min])min = k;
+		}
+		else
+			delete [] names[j];
+	}
+	
+}
+
 //TODO: implement functions to load and save letter data in a file, as well as reimplement the analyzer function in order to make it possible for it to take the existing letter data, and append to it
 int main(int argc, char *argv[]){
 	stats data, *curdata = &data;
@@ -211,7 +230,7 @@ int main(int argc, char *argv[]){
 								thread[j].join();
 							size_t min = 0;
 //							printf("selecting names\n");
-							for(size_t k= 0; k < filter; k++)
+/*							for(size_t k= 0; k < filter; k++)
 								if(grade[k] < grade[min])min = k;
 							for(size_t j = filter; j < gensize; j++){
 								if(grade[j] > grade[min]){
@@ -224,6 +243,7 @@ int main(int argc, char *argv[]){
 								else
 									delete [] generation[j];
 							}
+*/							for(size_t j = 0; )
 							if(curdata != &data) delete curdata;
 							curdata = new stats;
 							curdata->analyze(generation, filter);

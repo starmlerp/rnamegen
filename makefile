@@ -21,6 +21,7 @@ OBJS=$(SRCS:$(SRC)/%.cpp=$(BLD)/%.o)
 LIBS=$(SRCS:$(SRC)/%.cpp=$(LIB)/lib%.a)
 
 all: $(TARGET) tags $(LIB) $(BLD)
+install: $(INSTALL)
 
 $(TARGET).o: $(TARGET).cpp
 	$(CXX) $(CPPFLAGS) -c -I $(HDR) $(TARGET).cpp -o $@
@@ -44,15 +45,15 @@ $(INSTALLDIR)/$(CONFIG): $(CONFIGDIR)/$(CONFIG) $(INSTALLDIR)
 tags: $(TARGET).cpp $(HDRS) $(SRCS)
 	ctags $^
 
-.PHONY=run clear install uninstall
+.PHONY=run clear uninstall
 
 run: $(TARGET)
 	./$(TARGET)
 clear:
 	rm -f $(TARGET) $(TARGET).o $(OBJS) $(LIBS)
 
-install: $(TARGET) $(LIB) $(BLD) $(INSTALLDIR)/$(CONFIG)
-	cp $(TARGET) $(INSTALL)
+$(INSTALL): $(TARGET) $(LIB) $(BLD) $(INSTALLDIR)/$(CONFIG)
+	cp $(TARGET) $@
 
 uninstall:
 	rm -r $(INSTALLDIR) $(INSTALL)
